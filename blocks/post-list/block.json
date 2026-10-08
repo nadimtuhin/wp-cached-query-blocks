@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cached-query-blocks/post-list",
+	"version": "0.1.0",
+	"title": "Cached Post List",
+	"category": "widgets",
+	"icon": "list-view",
+	"description": "A list of recent posts whose rendered HTML is cached until content changes.",
+	"keywords": [ "latest posts", "query", "cache" ],
+	"textdomain": "cached-query-blocks",
+	"attributes": {
+		"postType": {
+			"type": "string",
+			"default": "post"
+		},
+		"taxonomy": {
+			"type": "string",
+			"default": ""
+		},
+		"termId": {
+			"type": "integer",
+			"default": 0
+		},
+		"postsPerPage": {
+			"type": "integer",
+			"default": 5
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
+		},
+		"cacheTtl": {
+			"type": "integer",
+			"default": 600
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

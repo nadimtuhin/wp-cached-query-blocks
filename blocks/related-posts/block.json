@@ -1,0 +1,37 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "cached-query-blocks/related-posts",
+	"version": "0.1.0",
+	"title": "Cached Related Posts",
+	"category": "widgets",
+	"icon": "networking",
+	"description": "Posts that share a category, tag or other public term with the current post. Cached per post until content changes.",
+	"keywords": [ "related", "query", "cache" ],
+	"textdomain": "cached-query-blocks",
+	"usesContext": [ "postId" ],
+	"attributes": {
+		"postsPerPage": {
+			"type": "integer",
+			"default": 5
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
+		},
+		"cacheTtl": {
+			"type": "integer",
+			"default": 600
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}
