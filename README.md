@@ -19,15 +19,15 @@ Both render a plain `<ul class="cqb-posts">` list with titles, links and optiona
 
 ## How caching works
 
-1. On render, the plugin builds a cache key: `md5` of the block name, the block attributes with keys sorted (so attribute order does not matter), any context that changes the output (the current post ID for related posts), and a salt.
+1. On render, the plugin builds a cache key: `md5` of the block name, the block attributes with keys sorted (so attribute order does not matter), any context that changes the output (the current post ID for related posts), the locale (`determine_locale()`), the home URL (`home_url()`, which carries the request scheme and, on multilingual sites, the language domain), and a salt.
 2. If a persistent object cache is active (`wp_using_ext_object_cache()`, for example Redis or Memcached), the HTML is stored with `wp_cache_set()` in the `cqb` group. Otherwise it is stored as a transient.
 3. On a hit, the stored HTML is returned and no `WP_Query` runs. On a miss, the query runs, the HTML is built and escaped, then stored.
 4. The TTL comes from the block's "Cache lifetime" setting, clamped to 60 seconds through 24 hours.
 5. When something visitors could see changes, the salt is replaced with a new value. Every key changes, so old entries are never read again and expire on their own TTL. Nothing is flushed or deleted. This is the same "last changed" approach core uses for its own query caches. The triggers are:
-   - `save_post`, `deleted_post` and `set_object_terms` for published posts of a viewable post type. Drafts, revisions, autosaves, menu items and other non-viewable types are ignored.
+   - `save_post`, `deleted_post`, `set_object_terms` and `deleted_term_relationships` for published posts of a viewable post type. Drafts, revisions, autosaves, menu items and other non-viewable types are ignored.
    - `transition_post_status` when a post enters or leaves `publish` (publish, unpublish, trash).
-   - `edited_term`.
-   - Changes to `permalink_structure`, `category_base`, `tag_base`, `home` and `siteurl`, because the cached HTML contains absolute links.
+   - `edited_term` and `delete_term`.
+   - Changes to `permalink_structure`, `category_base`, `tag_base`, `home`, `siteurl`, `show_on_front`, `page_on_front` and `page_for_posts`, because the cached HTML contains absolute links and those options change page permalinks.
 6. The salt lives in the object cache when it is persistent. Without one it lives in an autoloaded option, because the default object cache does not survive the request while transients do.
 
 Excerpts of password-protected posts are never rendered, because `get_the_excerpt()` reads the visitor's password cookie and the cached HTML is shared by everyone.
@@ -35,7 +35,6 @@ Excerpts of password-protected posts are never rendered, because `get_the_excerp
 ### Known limits
 
 - The invalidation is coarse: any qualifying change invalidates every cached block. That keeps it correct without tracking which posts each block shows. On sites that publish many times a minute the hit rate will be low; per-post-type salts would be the next step.
-- The key does not include the locale, the request scheme or the host. Multilingual sites (WPML, Polylang) and sites that serve both `http` and `https` would share one cached render across those variants.
 - Without a persistent object cache, entries under an old salt stay in `wp_options` until core's daily `delete_expired_transients` job removes them. The related posts block stores one entry per post, so a busy site without Redis or Memcached can build up a lot of rows between cron runs.
 
 With `WP_DEBUG` on, each rendered block ends with `<!-- cqb: hit -->` or `<!-- cqb: miss -->`.
@@ -81,13 +80,13 @@ composer install
 composer test   # PHPUnit with Brain Monkey, no WordPress or database needed
 composer lint   # PHPCS with WordPress Coding Standards
 
-npm install
-npm run build
-npm run lint:js
-npm run test:js
+pnpm install
+pnpm run build
+pnpm run lint:js
+pnpm run test:js
 ```
 
-Block sources live in `blocks/`, PHP classes in `src/` (PSR-4, `CachedQueryBlocks\`). `build/` is not committed; run `npm run build` before activating the plugin from a git checkout.
+Block sources live in `blocks/`, PHP classes in `src/` (PSR-4, `CachedQueryBlocks\`). `build/` is not committed; run `pnpm run build` before activating the plugin from a git checkout.
 
 ## License
 

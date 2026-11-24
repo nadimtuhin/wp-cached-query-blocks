@@ -99,6 +99,23 @@ final class InvalidatorTest extends TestCase {
 		$this->assertInvalidated();
 	}
 
+	public function test_register_hooks_term_deletion_and_term_removal(): void {
+		$this->invalidator->register();
+
+		// wp_delete_term() removes non-default terms with wp_remove_object_terms(), which never fires set_object_terms.
+		$this->assertNotFalse( has_action( 'delete_term', array( $this->invalidator, 'invalidate' ) ) );
+		$this->assertNotFalse( has_action( 'deleted_term_relationships', array( $this->invalidator, 'on_set_object_terms' ) ) );
+	}
+
+	public function test_register_hooks_front_page_options(): void {
+		$this->invalidator->register();
+
+		// These change get_permalink() for the pages involved, and the cached HTML holds those links.
+		$this->assertNotFalse( has_action( 'update_option_show_on_front', array( $this->invalidator, 'invalidate' ) ) );
+		$this->assertNotFalse( has_action( 'update_option_page_on_front', array( $this->invalidator, 'invalidate' ) ) );
+		$this->assertNotFalse( has_action( 'update_option_page_for_posts', array( $this->invalidator, 'invalidate' ) ) );
+	}
+
 	public function test_register_hooks_content_and_url_changes(): void {
 		$this->invalidator->register();
 
