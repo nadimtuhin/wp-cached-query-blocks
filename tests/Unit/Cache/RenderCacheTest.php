@@ -40,6 +40,29 @@ final class RenderCacheTest extends TestCase {
 		);
 	}
 
+	public function test_key_changes_with_locale(): void {
+		$cache   = new RenderCache( true );
+		$english = $cache->key( self::BLOCK, array() );
+
+		$this->locale = 'de_DE';
+
+		$this->assertNotSame( $english, $cache->key( self::BLOCK, array() ) );
+	}
+
+	public function test_key_changes_with_home_url_scheme_and_host(): void {
+		$cache = new RenderCache( true );
+		$https = $cache->key( self::BLOCK, array() );
+
+		$this->home_url = 'http://example.test';
+		$http           = $cache->key( self::BLOCK, array() );
+
+		$this->home_url = 'https://fr.example.test';
+		$other_host     = $cache->key( self::BLOCK, array() );
+
+		$this->assertNotSame( $https, $http );
+		$this->assertNotSame( $https, $other_host );
+	}
+
 	public function test_bumping_the_salt_changes_the_key(): void {
 		$cache  = new RenderCache( true );
 		$before = $cache->key( self::BLOCK, array() );

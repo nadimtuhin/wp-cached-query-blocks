@@ -36,6 +36,10 @@ final class RenderCache {
 	}
 
 	/**
+	 * The locale and home URL are always part of the key: multilingual plugins change the
+	 * query results and links per language, and the HTML holds absolute links whose scheme
+	 * and host follow the request.
+	 *
 	 * @param string               $block_name Block name, e.g. cached-query-blocks/post-list.
 	 * @param array<string, mixed> $attributes Block attributes.
 	 * @param array<string, mixed> $context    Anything else that changes the output, such as the current post ID.
@@ -45,6 +49,8 @@ final class RenderCache {
 			$block_name,
 			self::sort_keys( $attributes ),
 			self::sort_keys( $context ),
+			determine_locale(),
+			home_url(),
 			$this->salt(),
 		);
 

@@ -17,7 +17,7 @@ use WP_Post;
  */
 final class Invalidator {
 
-	private const URL_OPTIONS = array( 'permalink_structure', 'category_base', 'tag_base', 'home', 'siteurl' );
+	private const URL_OPTIONS = array( 'permalink_structure', 'category_base', 'tag_base', 'home', 'siteurl', 'show_on_front', 'page_on_front', 'page_for_posts' );
 
 	/**
 	 * @param RenderCache $cache Cache whose salt gets bumped.
@@ -29,7 +29,9 @@ final class Invalidator {
 		add_action( 'deleted_post', array( $this, 'on_deleted_post' ), 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'on_transition_post_status' ), 10, 3 );
 		add_action( 'set_object_terms', array( $this, 'on_set_object_terms' ) );
+		add_action( 'deleted_term_relationships', array( $this, 'on_set_object_terms' ) );
 		add_action( 'edited_term', array( $this, 'invalidate' ) );
+		add_action( 'delete_term', array( $this, 'invalidate' ) );
 
 		foreach ( self::URL_OPTIONS as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'invalidate' ) );

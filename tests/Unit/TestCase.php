@@ -24,6 +24,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 	/** @var array<string, int> */
 	protected array $ttls = array();
 
+	protected string $locale = 'en_US';
+
+	protected string $home_url = 'https://example.test';
+
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
@@ -32,6 +36,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase {
 		$this->ttls  = array();
 
 		Functions\when( 'wp_json_encode' )->alias( 'json_encode' );
+		Functions\when( 'determine_locale' )->alias( fn() => $this->locale );
+		Functions\when( 'home_url' )->alias( fn() => $this->home_url );
 		Functions\when( 'is_post_type_viewable' )->alias(
 			fn( $type ) => is_object( $type ) ? ! empty( $type->public ) : in_array( $type, array( 'post', 'page' ), true )
 		);
